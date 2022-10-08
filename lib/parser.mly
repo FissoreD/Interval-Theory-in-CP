@@ -35,6 +35,7 @@ constr:
 expr:
   | FLOAT           {Leaf (Const $1)}
   | VAR             {Leaf (Var $1)}
+  | FLOAT VAR       {Node ({l = Leaf (Const $1); op = Mul; r = Leaf (Var $2); i = empty})}
   | expr MUL expr   {Node ({l = $1; op = Mul; r = $3; i = empty})}
   | expr DIV expr   {Node ({l = $1; op = Div; r = $3; i = empty})}
   | expr ADD expr   {Node ({l = $1; op = Add; r = $3; i = empty})}
