@@ -4,19 +4,19 @@ and tree = Leaf of Interval.t | Node of node_cnt
 
 type decorated_tree = { tree : tree; mem : (string, Interval.t) Hashtbl.t }
 
+let get_interval = function
+  | Leaf i1, Leaf i2
+  | Leaf i1, Node { i = i2; _ }
+  | Node { i = i1; _ }, Leaf i2
+  | Node { i = i1; _ }, Node { i = i2; _ } ->
+      (i1, i2)
+
 let rec eval_bottom_top = function
   | Node { op; r; l; _ } ->
       let f = Operator.op_to_fun op in
       let l = eval_bottom_top l in
       let r = eval_bottom_top r in
-      let i1, i2 =
-        match (l, r) with
-        | Leaf i1, Leaf i2
-        | Leaf i1, Node { i = i2; _ }
-        | Node { i = i1; _ }, Leaf i2
-        | Node { i = i1; _ }, Node { i = i2; _ } ->
-            (i1, i2)
-      in
+      let i1, i2 = get_interval (l, r) in
       Node { op; i = f i1 i2; l; r }
   | t -> t
 
@@ -24,14 +24,7 @@ let eval_top_bottom tree =
   let open Interval in
   let rec aux (res : Interval.t) = function
     | Node { op; r; l; _ } ->
-        let i1, i2 =
-          match (l, r) with
-          | Leaf i1, Leaf i2
-          | Leaf i1, Node { i = i2; _ }
-          | Node { i = i1; _ }, Leaf i2
-          | Node { i = i1; _ }, Node { i = i2; _ } ->
-              (i1, i2)
-        in
+        let i1, i2 = get_interval (l, r) in
         let l, r =
           match op with
           | Add -> (aux ((res -- i2) && i1) l, aux ((res -- i1) && i2) r)
@@ -45,7 +38,6 @@ let eval_top_bottom tree =
         Node { op; i = res; l; r }
     | _ -> Leaf res
   in
-  let open Interval in
   match tree with
   | Node { i; l; r; op } -> (
       match r with
