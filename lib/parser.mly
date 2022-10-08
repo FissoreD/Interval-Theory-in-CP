@@ -13,13 +13,18 @@
 %left MUL DIV
 
 %start f
-%type <tree> f expr constr
+%type <tree list> f constr_list
+%type <tree> constr
 // %type <(string * Interval.t) list> var_interval
 
 %%
 
 f:
-  var_interval; SEP; constr; EOF  { $3 }
+  var_interval; SEP; constr_list; EOF  { $3 }
+
+constr_list: 
+  | constr             { [ $1 ] }
+  | constr constr_list { $1 :: $2 }
 
 constr: 
   | expr GEQ FLOAT   {Node ({l = $1; op = Geq; r = Leaf(make_interval $3 $3); i = empty})}
