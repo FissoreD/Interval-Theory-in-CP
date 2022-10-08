@@ -13,27 +13,28 @@
 %left MUL DIV
 
 %start f
-%type <tree list> f constr_list
+%type <(string, Interval.t) Hashtbl.t * tree list> f
+%type <tree list> constr_list
 %type <tree> constr
 // %type <(string * Interval.t) list> var_interval
 
 %%
 
 f:
-  var_interval; SEP; constr_list; EOF  { $3 }
+  var_interval; SEP; constr_list; EOF  { mem, $3 }
 
 constr_list: 
   | constr             { [ $1 ] }
   | constr constr_list { $1 :: $2 }
 
 constr: 
-  | expr GEQ FLOAT   {Node ({l = $1; op = Geq; r = Leaf(make_interval $3 $3); i = empty})}
-  | expr LEQ FLOAT   {Node ({l = $1; op = Leq; r = Leaf(make_interval $3 $3); i = empty})}
-  | expr EQL FLOAT   {Node ({l = $1; op = Eql; r = Leaf(make_interval $3 $3); i = empty})}
+  | expr GEQ FLOAT   {Node ({l = $1; op = Geq; r = Leaf(Const $3); i = empty})}
+  | expr LEQ FLOAT   {Node ({l = $1; op = Leq; r = Leaf(Const $3); i = empty})}
+  | expr EQL FLOAT   {Node ({l = $1; op = Eql; r = Leaf(Const $3); i = empty})}
 
 expr:
-  | FLOAT           {Leaf (make_interval $1 $1)}
-  | VAR             {Leaf (Hashtbl.find mem $1)}
+  | FLOAT           {Leaf (Const $1)}
+  | VAR             {Leaf (Var $1)}
   | expr MUL expr   {Node ({l = $1; op = Mul; r = $3; i = empty})}
   | expr DIV expr   {Node ({l = $1; op = Div; r = $3; i = empty})}
   | expr ADD expr   {Node ({l = $1; op = Add; r = $3; i = empty})}
