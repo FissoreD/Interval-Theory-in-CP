@@ -1,0 +1,3 @@
+(test
+ (name IntervalTheoryInCP)
+ (libraries IntervalTheoryInCP))
