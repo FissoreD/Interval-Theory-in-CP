@@ -1,7 +1,12 @@
 %{
   open Interval
   open Tree
+  open Operator
   let mem = Hashtbl.create 2048
+
+  let calc_interval op t1 t2 = 
+    let a, b = get_interval mem (t1, t2) in 
+    (op_to_fun op) a b
 %}
 
 %token MUL, ADD, SUB, DIV, LEQ, GEQ, EQL 
@@ -27,18 +32,18 @@ constr_list:
   | constr constr_list { $1 :: $2 }
 
 constr: 
-  | expr GEQ FLOAT   {Node ({l = $1; op = Geq; r = Leaf(Const $3); i = empty})}
-  | expr LEQ FLOAT   {Node ({l = $1; op = Leq; r = Leaf(Const $3); i = empty})}
-  | expr EQL FLOAT   {Node ({l = $1; op = Eql; r = Leaf(Const $3); i = empty})}
+  | expr GEQ FLOAT   {Node {l = $1; op = Geq; r = Leaf(Const $3); i = calc_interval Geq $1 (Leaf(Const $3)) }}
+  | expr LEQ FLOAT   {Node {l = $1; op = Leq; r = Leaf(Const $3); i = calc_interval Leq $1 (Leaf(Const $3)) }}
+  | expr EQL FLOAT   {Node {l = $1; op = Eql; r = Leaf(Const $3); i = calc_interval Eql $1 (Leaf(Const $3)) }}
 
 expr:
   | FLOAT           {Leaf (Const $1)}
   | VAR             {Leaf (Var $1)}
-  | FLOAT VAR       {Node ({l = Leaf (Const $1); op = Mul; r = Leaf (Var $2); i = empty})}
-  | expr MUL expr   {Node ({l = $1; op = Mul; r = $3; i = empty})}
-  | expr DIV expr   {Node ({l = $1; op = Div; r = $3; i = empty})}
-  | expr ADD expr   {Node ({l = $1; op = Add; r = $3; i = empty})}
-  | expr SUB expr   {Node ({l = $1; op = Sub; r = $3; i = empty})}
+  | FLOAT VAR       {Node {l = Leaf (Const $1); op = Mul; r = Leaf (Var $2); i = calc_interval Mul (Leaf(Const $1)) (Leaf (Var $2)) }}
+  | expr MUL expr   {Node {l = $1; op = Mul; r = $3; i = calc_interval Mul $1 $3}}
+  | expr DIV expr   {Node {l = $1; op = Div; r = $3; i = calc_interval Div $1 $3}}
+  | expr ADD expr   {Node {l = $1; op = Add; r = $3; i = calc_interval Add $1 $3}}
+  | expr SUB expr   {Node {l = $1; op = Sub; r = $3; i = calc_interval Sub $1 $3}}
 
 
 var_interval:
