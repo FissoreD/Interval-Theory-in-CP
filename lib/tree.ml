@@ -51,21 +51,21 @@ let eval_top_bottom mem tree =
       | _ -> Empty)
   | l -> l
 
-let rec print ?(infix = false) mem = function
-  | Leaf (Var x) -> Interval.print (Hashtbl.find mem x)
-  | Leaf (Const f) -> print_string (string_of_float f)
+let rec print ?(dec = 0) ?(infix = false) mem = function
+  | Leaf (Var x) -> Interval.print ~dec (Hashtbl.find mem x)
+  | Leaf (Const f) -> Printf.printf "%.*f" dec f
   | Leaf (Interval i) -> Interval.print i
   | Node { op; l; r; i } ->
       print_string "(";
       if not infix then (
-        print ~infix mem l;
+        print ~dec ~infix mem l;
         print_string " ");
       Operator.op_to_str op |> print_string;
       Interval.print i;
       if infix then (
         print_string " ";
-        print ~infix mem l);
+        print ~dec ~infix mem l);
       print_string " ";
-      print ~infix mem r;
+      print ~dec ~infix mem r;
       print_string ")"
   | Empty -> print_string "Empty"
