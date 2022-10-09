@@ -16,12 +16,11 @@
 %type <(string, Interval.t) Hashtbl.t * tree list> f
 %type <tree list> constr_list
 %type <tree> constr
-// %type <(string * Interval.t) list> var_interval
 
 %%
 
 f:
-  var_interval; SEP; constr_list; EOF  { mem, $3 }
+  var_interval; constr_list; EOF  { mem, $2 }
 
 constr_list: 
   | constr             { [ $1 ] }
@@ -44,5 +43,5 @@ expr:
 
 var_interval:
   | VAR; FLOAT; FLOAT; var_interval { Hashtbl.add mem $1 (make_interval $2 $3) } 
-  | VAR; FLOAT; FLOAT;              { Hashtbl.add mem $1 (make_interval $2 $3) } 
+  | SEP                             {  } 
   

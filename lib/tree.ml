@@ -2,8 +2,6 @@ type node_cnt = { op : Operator.t; i : Interval.t; r : tree; l : tree }
 and leaf = Var of string | Const of float | Interval of Interval.t
 and tree = Leaf of leaf | Node of node_cnt | Empty
 
-type decorated_tree = { tree : tree; mem : (string, Interval.t) Hashtbl.t }
-
 let get_leaf_interval mem = function
   | Const f -> Interval.make_interval f f
   | Var v -> Hashtbl.find mem v
