@@ -5,7 +5,7 @@
 *)
 let tree_analyse t mem =
   let bt = Tree.eval_bottom_top mem t in
-  Tree.eval_top_bottom mem bt |> ignore
+  Tree.eval_top_bottom mem bt
 
 (** 
   As specified in the description of constraint_inter in the mli file, 
@@ -32,11 +32,13 @@ let constraint_inter ?(dec = 3) ?(print_tree = false) ?(verbose = false)
     if Queue.is_empty queue then ()
     else
       let t = Queue.take queue in
-      tree_analyse t mem;
+      let t' = tree_analyse t mem in
       if verbose then (
         Memory.print ~dec mem;
         print_endline "");
-      if print_tree then Tree.print ~dec ~simple_version:false mem t;
+      if print_tree then (
+        Tree.print ~dec ~simple_version:false mem t';
+        print_endline "");
       if stop_condition ~precision mem then repeat ()
       else (
         Queue.add t queue;

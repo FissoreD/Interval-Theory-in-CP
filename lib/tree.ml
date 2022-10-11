@@ -54,21 +54,22 @@ let eval_top_bottom mem tree =
 let rec print ?(simple_version = true) ?(dec = 0) ?(infix = false)
     (mem : Memory.t) = function
   | Leaf (Var x) ->
-      if simple_version then print_string x
-      else Interval.print ~dec (Hashtbl.find mem x).current
+      print_string x;
+      if not simple_version then
+        Interval.print ~dec (Hashtbl.find mem x).current
   | Leaf (Const f) -> Printf.printf "%.*f" dec f
   | Leaf (Interval i) -> Interval.print i
   | Node { op; l; r; i } ->
       print_string "(";
       if not infix then (
-        print ~dec ~infix mem l;
+        print ~simple_version ~dec ~infix mem l;
         print_string " ");
       Operator.op_to_str op |> print_string;
       if not simple_version then Interval.print i;
       if infix then (
         print_string " ";
-        print ~dec ~infix mem l);
+        print ~simple_version ~dec ~infix mem l);
       print_string " ";
-      print ~dec ~infix mem r;
+      print ~simple_version ~dec ~infix mem r;
       print_string ")"
   | Empty -> print_string "Empty"

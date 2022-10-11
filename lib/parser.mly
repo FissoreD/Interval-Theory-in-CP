@@ -16,12 +16,12 @@
 %type <Memory.t * tree list> f
 %type <tree list> constr_list
 %type <tree> constr
-%type <Memory.mem_parser> var_interval
+%type <Memory.mem_parser> interval_list
 
 %%
 
 f:
-  var_interval; constr_list; EOF  { Memory.to_tbl $1, $2 }
+  interval_list; constr_list; EOF  { Memory.to_tbl $1, $2 }
 
 constr_list: 
   | constr             { [ $1 ] }
@@ -42,7 +42,7 @@ expr:
   | expr SUB expr   {Node {l = $1; op = Sub; r = $3; i = empty}}
 
 
-var_interval:
-  | VAR; FLOAT; FLOAT; var_interval { ($1, (make_interval $2 $3)) :: $4 } 
+interval_list:
+  | VAR; FLOAT; FLOAT; interval_list { ($1, (make_interval $2 $3)) :: $4 } 
   | SEP                             { [] } 
   
