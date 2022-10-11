@@ -2,4 +2,4 @@
 
 ## Launch the main 
 
-`dune exec IntervalTheoryInC`
+`dune exec IntervalTheoryInCP`
