@@ -24,7 +24,8 @@ let stop_condition ~precision (mem : Memory.t) =
   in
   aux (keys ())
 
-let constraint_inter ?(precision = 0.1) (mem, t) =
+let constraint_inter ?(dec = 3) ?(print_tree = false) ?(verbose = false)
+    ?(precision = 0.1) (mem, t) =
   let queue = Queue.create () in
   List.iter (fun e -> Queue.add e queue) t;
   let rec repeat () =
@@ -32,6 +33,10 @@ let constraint_inter ?(precision = 0.1) (mem, t) =
     else
       let t = Queue.take queue in
       tree_analyse t mem;
+      if verbose then (
+        Memory.print ~dec mem;
+        print_endline "");
+      if print_tree then Tree.print ~dec ~simple_version:false mem t;
       if stop_condition ~precision mem then repeat ()
       else (
         Queue.add t queue;

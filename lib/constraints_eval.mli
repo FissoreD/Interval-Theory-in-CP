@@ -1,4 +1,10 @@
-val constraint_inter : ?precision:float -> Memory.t * Tree.tree list -> unit
+val constraint_inter :
+  ?dec:int ->
+  ?print_tree:bool ->
+  ?verbose:bool ->
+  ?precision:float ->
+  Memory.t * Tree.tree list ->
+  unit
 (** 
   It calculates the intersection between a list of constraints on a given tree and a 
   memory. 
