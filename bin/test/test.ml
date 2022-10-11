@@ -5,4 +5,6 @@ let _ =
     test_interval_mul ();
     test_interval_div ());
   Tree_test.test_print ();
-  Constraint_eval.test_constraints ()
+  Constraint_test.test_constraints ();
+  Constraint_eval.test_constraints ();
+  print_endline ""

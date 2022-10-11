@@ -1,27 +1,18 @@
-(*
-  x ∈ [−2, 5]
-  y ∈ [−3, 7]
-  z ∈ [4, 9]
-
-  x + y − z = 5 → 5 ∈ [−14, 8] ⇒ peut-etre une solution
-  3z ≤ 10 → 10 < [12, 27] ⇒ pas de solution
-  x + y + z ≥ 10 → 10 ∈ [−1, 21] ⇒ peut-etre une solution
-  x × y + y × z != 0 → [0, 0] != [−42, 98] ⇒ peut-etre une solution
-*)
-
 open IntervalTheoryInCP
-open Interval
 
-let x = make_interval (-2.) 5.
-let y = make_interval (-3.) 7.
-let z = make_interval 4. 9.
+let test1 =
+  Parsing_commands.parse_string
+    "x : [-2, 5]\ny : [-3, 3]\n%%\n  x - 2y <= 2\nx + 2y <= 2"
+
+let test2 =
+  Parsing_commands.parse_string
+    "x : [0, 8]\ny : [-1, 3]\n%%x + 4y = 8\nx + 2y = 6"
 
 let test_constraints () =
-  let a1 = x ++ y -- z == make_interval 5. 5. in
-  let a2 = make_interval 3. 3. ** z <<= make_interval 10. 10. in
-  let a3 = x ++ y ++ z >>= make_interval 10. 10. in
-  let a4 = (x ** y) ++ (y ** z) == make_interval 0. 0. in
-  assert (a1 <> empty);
-  assert (a2 = empty);
-  assert (a3 <> empty);
-  assert (a4 <> empty)
+  let mem, _ = test1 in
+  Constraints_eval.constraint_inter test1;
+  Memory.print mem;
+  print_endline "";
+  let mem, _ = test2 in
+  Constraints_eval.constraint_inter test2;
+  Memory.print ~dec:4 mem

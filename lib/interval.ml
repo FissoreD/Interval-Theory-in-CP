@@ -39,6 +39,7 @@ let ( || ) = inter_union min max
 let ( >>= ) i1 i2 = i1 && Option.map (fun (_, a) -> (a, max_float)) i2
 let ( <<= ) i1 i2 = i1 && Option.map (fun (a, _) -> (min_float, a)) i2
 let ( == ) i1 i2 = i1 && Option.map (fun (a, _) -> (a, a)) i2
+let size : t -> float = function None -> 0. | Some (a, b) -> b -. a
 
 let print ?(dec = 0) = function
   | None -> print_string "[]"

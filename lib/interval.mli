@@ -7,7 +7,10 @@ val empty : t
 (** The empty interval  *)
 
 val is_empty : t -> bool
-(** Return if an interval is empty *)
+(** Returns if an interval is empty *)
+
+val size : t -> float
+(** Returns the size of the interval *)
 
 val ( ++ ) : t -> t -> t
 (** The sum of two intervals *)
