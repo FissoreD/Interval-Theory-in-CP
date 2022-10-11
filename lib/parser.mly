@@ -13,7 +13,7 @@
 %left MUL DIV
 
 %start f
-%type <(string, Interval.t) Hashtbl.t * tree list> f
+%type <Memory.t * tree list> f
 %type <tree list> constr_list
 %type <tree> constr
 %type <Memory.mem_parser> var_interval

@@ -2,9 +2,9 @@ type node_cnt = { op : Operator.t; i : Interval.t; r : tree; l : tree }
 and leaf = Var of string | Const of float | Interval of Interval.t
 and tree = Leaf of leaf | Node of node_cnt | Empty
 
-let get_leaf_interval mem = function
+let get_leaf_interval (mem : Memory.t) = function
   | Const f -> Interval.make_interval f f
-  | Var v -> Hashtbl.find mem v
+  | Var v -> (Hashtbl.find mem v).current
   | Interval i -> i
 
 let get_interval mem = function
@@ -14,7 +14,7 @@ let get_interval mem = function
   | Node { i = i1; _ }, Leaf i2 -> (i1, get_leaf_interval mem i2)
   | _ -> Interval.(empty, empty)
 
-let rec eval_bottom_top mem = function
+let rec eval_bottom_top (mem : Memory.t) = function
   | Node { op; r; l; _ } ->
       let f = Operator.op_to_fun op in
       let l = eval_bottom_top mem l in
@@ -40,7 +40,7 @@ let eval_top_bottom mem tree =
         in
         Node { op; i = res; l; r }
     | Leaf (Var x) as l ->
-        Hashtbl.replace mem x res;
+        Memory.update (Hashtbl.find mem x) res;
         l
     | l -> l
   in
@@ -51,8 +51,8 @@ let eval_top_bottom mem tree =
       | _ -> Empty)
   | l -> l
 
-let rec print ?(dec = 0) ?(infix = false) mem = function
-  | Leaf (Var x) -> Interval.print ~dec (Hashtbl.find mem x)
+let rec print ?(dec = 0) ?(infix = false) (mem : Memory.t) = function
+  | Leaf (Var x) -> Interval.print ~dec (Hashtbl.find mem x).current
   | Leaf (Const f) -> Printf.printf "%.*f" dec f
   | Leaf (Interval i) -> Interval.print i
   | Node { op; l; r; i } ->
