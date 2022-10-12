@@ -100,7 +100,7 @@ Through *dune* you can launch:
   - **-help**  Display this list of options
   - **--help**  Display this list of options
 
-By default the main parses the *input.txt* file in *./ressources*, the verbose mode is not enabled and the precision of the constraints is set to $0.1$.
+By default, the main parses the *input.txt* file in *./ressources*, the verbose mode is not enabled and the precision of the constraints is set to $0.1$.
 
 ### Execution example
 Let *input.txt* contains:
