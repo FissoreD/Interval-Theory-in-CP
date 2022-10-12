@@ -1,6 +1,12 @@
-type node_cnt = { op : Operator.t; i : Interval.t; r : tree; l : tree }
+type bin_node = { op : Operator.Binary.t; i : Interval.t; r : tree; l : tree }
+and unary_node = { opu : Operator.Unary.t; iu : Interval.t; c : tree }
 and leaf = Var of string | Const of float | Interval of Interval.t
-and tree = Leaf of leaf | Node of node_cnt | Empty
+
+and tree =
+  | Leaf of leaf
+  | UnaryNode of unary_node
+  | BinNode of bin_node
+  | Empty
 
 let get_leaf_interval (mem : Memory.t) = function
   | Const f -> Interval.make_interval f f
@@ -8,48 +14,53 @@ let get_leaf_interval (mem : Memory.t) = function
   | Interval i -> i
 
 let get_interval mem = function
-  | Node { i = i1; _ }, Node { i = i2; _ } -> (i1, i2)
-  | Leaf i1, Leaf i2 -> (get_leaf_interval mem i1, get_leaf_interval mem i2)
-  | Leaf i1, Node { i = i2; _ } -> (get_leaf_interval mem i1, i2)
-  | Node { i = i1; _ }, Leaf i2 -> (i1, get_leaf_interval mem i2)
-  | _ -> Interval.(empty, empty)
+  | Leaf i1 -> get_leaf_interval mem i1
+  | Empty -> Interval.(empty)
+  | UnaryNode { iu = i1; _ } | BinNode { i = i1; _ } -> i1
 
 let rec eval_bottom_top (mem : Memory.t) = function
-  | Node { op; r; l; _ } ->
-      let f = Operator.op_to_fun op in
+  | BinNode { op; r; l; _ } ->
+      let f = Operator.Binary.op_to_fun op in
       let l = eval_bottom_top mem l in
       let r = eval_bottom_top mem r in
-      let i1, i2 = get_interval mem (l, r) in
-      Node { op; i = f i1 i2; l; r }
-  | t -> t
+      let i1, i2 = (get_interval mem l, get_interval mem r) in
+      let i = f i1 i2 in
+      if Interval.is_empty i then Memory.empty_memory mem;
+      BinNode { op; i; l; r }
+  | UnaryNode { opu; c; _ } ->
+      let f = Operator.Unary.op_to_fun opu in
+      let c = eval_bottom_top mem c in
+      let i1 = get_interval mem c in
+      UnaryNode { opu; iu = f i1; c }
+  | Leaf _ as l -> l
+  | Empty as e -> e
 
 let eval_top_bottom mem tree =
   let open Interval in
   let rec aux (res : Interval.t) = function
-    | Node { op; r; l; _ } ->
-        let i1, i2 = get_interval mem (l, r) in
-        let l, r =
-          match op with
-          | Add -> (aux ((res -- i2) && i1) l, aux ((res -- i1) && i2) r)
-          | Mul -> (aux ((res // i2) && i1) l, aux ((res // i1) && i2) r)
-          | Sub -> (aux ((res ++ i2) && i1) l, aux ((i1 -- res) && i2) r)
-          | Div -> (aux ((res ** i2) && i1) l, aux ((i1 // res) && i2) r)
-          | t ->
-              let msg = "Find a non valid operator : " ^ Operator.op_to_str t in
-              failwith msg
-        in
-        Node { op; i = res; l; r }
+    | BinNode { op; r; l; _ } ->
+        let i1, i2 = (get_interval mem l, get_interval mem r) in
+        let i1', i2' = Operator.Binary.inv_op i1 i2 res op in
+        let l, r = (aux i1' l, aux i2' r) in
+        BinNode { op; i = res; l; r }
+    | UnaryNode { opu; c; _ } ->
+        let i1 = get_interval mem c in
+        let i1' = Operator.Unary.inv_op i1 res opu in
+        let c = aux i1' c in
+        UnaryNode { opu; iu = res; c }
     | Leaf (Var x) as l ->
         Memory.update (Hashtbl.find mem x) res;
         l
-    | l -> l
+    | Leaf _ as l -> l
+    | Empty as e -> e
   in
   match tree with
-  | Node { i; l; r; op } -> (
+  | BinNode { i; l; r; op } -> (
       match r with
-      | Leaf _ -> if is_empty i then Empty else Node { r; l = aux i l; op; i }
-      | _ -> Empty)
-  | l -> l
+      | Leaf _ ->
+          if is_empty i then Empty else BinNode { r; l = aux i l; op; i }
+      | Empty | UnaryNode _ | BinNode _ -> Empty)
+  | Empty | UnaryNode _ | Leaf _ -> Empty
 
 let rec print ?(simple_version = true) ?(dec = 0) ?(infix = false)
     (mem : Memory.t) = function
@@ -59,12 +70,12 @@ let rec print ?(simple_version = true) ?(dec = 0) ?(infix = false)
         Interval.print ~dec (Hashtbl.find mem x).current
   | Leaf (Const f) -> Printf.printf "%.*f" dec f
   | Leaf (Interval i) -> Interval.print i
-  | Node { op; l; r; i } ->
+  | BinNode { op; l; r; i } ->
       print_string "(";
       if not infix then (
         print ~simple_version ~dec ~infix mem l;
         print_string " ");
-      Operator.op_to_str op |> print_string;
+      Operator.Binary.op_to_str op |> print_string;
       if not simple_version then Interval.print i;
       if infix then (
         print_string " ";
@@ -72,4 +83,8 @@ let rec print ?(simple_version = true) ?(dec = 0) ?(infix = false)
       print_string " ";
       print ~simple_version ~dec ~infix mem r;
       print_string ")"
+  | UnaryNode { opu; c; iu } ->
+      Operator.Unary.op_to_str opu |> print_string;
+      if not simple_version then Interval.print iu;
+      print ~simple_version ~dec ~infix mem c
   | Empty -> print_string "Empty"

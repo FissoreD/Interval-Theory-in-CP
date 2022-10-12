@@ -10,12 +10,12 @@ let solve (a, b) = make_interval a b
 
 let my_assert op i1 i2 exp =
   print i1;
-  Operator.op_to_str op |> print_string;
+  Operator.Binary.op_to_str op |> print_string;
   print i2;
   print_char '=';
   print exp;
   print_endline "";
-  assert ((Operator.op_to_fun op) i1 i2 = exp)
+  assert ((Operator.Binary.op_to_fun op) i1 i2 = exp)
 
 let rec aux op = function
   | a1 :: b1, a2 :: b2, a3 :: b3 ->
@@ -46,3 +46,7 @@ let test_interval_div () =
   let i2 = make_interval 2. 4. in
   let res = make_interval (-1.) 1.5 in
   my_assert Div i1 i2 res
+
+let test_unary_sub () =
+  let i1 = make_interval (-2.) 5. in
+  assert ((Operator.Unary.op_to_fun Sub) i1 = make_interval (-5.) 2.)

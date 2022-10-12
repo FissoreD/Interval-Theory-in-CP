@@ -26,4 +26,7 @@ rule f = parse
   | ">="              { GEQ }
   | "<="              { LEQ }
   | "="               { EQL }
+
+  | '('               { LPAR }
+  | ')'               { RPAR }
  

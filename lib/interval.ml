@@ -27,7 +27,7 @@ let times_div op i1 i2 =
 let ( ** ) = times_div ( *. )
 let ( // ) = times_div ( /. )
 
-let inter_union op1 op2 (i1 : t) (i2 : t) =
+let inter_union op1 op2 (i1 : t) (i2 : t) : t =
   match (i1, i2) with
   | None, _ | _, None -> None
   | Some (a, b), Some (c, d) ->
@@ -36,11 +36,11 @@ let inter_union op1 op2 (i1 : t) (i2 : t) =
 
 let ( && ) = inter_union max min
 let ( || ) = inter_union min max
-let ( >>= ) i1 i2 = i1 && Option.map (fun (_, a) -> (a, max_float)) i2
-let ( <<= ) i1 i2 = i1 && Option.map (fun (a, _) -> (min_float, a)) i2
-let ( == ) i1 i2 = i1 && Option.map (fun (a, _) -> (a, a)) i2
+let ( >>= ) i1 (i2 : t) = i1 && Option.map (fun (_, a) -> (a, max_float)) i2
+let ( <<= ) i1 (i2 : t) = i1 && Option.map (fun (a, _) -> (min_float, a)) i2
+let ( == ) (i1 : t) (i2 : t) = i1 && Option.map (fun (a, _) -> (a, a)) i2
 let size : t -> float = function None -> 0. | Some (a, b) -> b -. a
 
-let print ?(dec = 0) = function
+let print ?(dec = 0) : t -> unit = function
   | None -> print_string "[]"
   | Some (a, b) -> Printf.printf "[%.*f, %.*f]" dec a dec b

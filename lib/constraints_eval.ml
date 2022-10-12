@@ -18,9 +18,11 @@ let stop_condition ~precision (mem : Memory.t) =
     | Seq.Nil -> true
     | Seq.Cons (a, b) ->
         let mem = Hashtbl.find mem a in
-        let size1 = Interval.size mem.old in
-        let size2 = Interval.size mem.current in
-        if size1 -. size2 > precision then false else aux (b ())
+        if Interval.is_empty mem.current then true
+        else
+          let size1 = Interval.size mem.old in
+          let size2 = Interval.size mem.current in
+          if size1 -. size2 > precision then false else aux (b ())
   in
   aux (keys ())
 
