@@ -5,19 +5,19 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github FissoreD/Interval-Theory-in-CP))
 
-(authors "Author Name")
+(authors "Fissore Davide")
 
-(maintainers "Maintainer Name")
+(maintainers "Fissore Davide")
 
 (license LICENSE)
 
-(documentation https://url/to/documentation)
+(documentation https://github.com/FissoreD/Interval-Theory-in-CP)
 
 (package
  (name IntervalTheoryInCP)
- (synopsis "A short synopsis")
+ (synopsis "A tool to evaluate CP over continue intervals")
  (description "A longer description")
  (depends ocaml dune)
  (tags
