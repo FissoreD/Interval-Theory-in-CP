@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IntervalTheoryInCP</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+  <link href="js/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 
   <!-- <script src="_build/default/bin/myjs.bc.js"></script> -->
@@ -22,13 +22,45 @@
     textarea {
       padding-left: 2em !important;
     }
+
+    #settings {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 5pt;
+    }
+
+    #settings * {
+      padding: 0pt 4pt
+    }
+
+    .mainframe {
+      padding-top: 3pt;
+    }
+
+    #title {
+      display: flex;
+      align-content: center;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 
 <body>
-  <div class="container">
+  <div class="container" id="mainframe">
     <div class="justify-content-center row">
-      <h1 class="text-center">Interval theory in CP</h1>
+
+      <div id="title">
+        <h1 class="text-center">Interval theory in CP</h1>
+        <a href="https://github.com/FissoreD/Interval-Theory-in-CP">
+          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-github"
+            id="github" viewBox="0 0 16 16" style="width: 30pt;">
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+          </svg>
+        </a>
+      </div>
 
       <div>
         <div class="justify-content-center row text-center">
@@ -39,20 +71,28 @@ y : [-1, 3]
 x + 4y = 8
 x + 2y = 6</textarea>
         </div>
-        <div class="text-center">
+        <div class="text-center" id="settings">
           <button onclick="send()">Send</button>
           <button id="nextB" onclick="next()" disabled>Next</button>
           <button id="runB" onclick="run()" disabled>Run</button>
+          <div style="display: inline-flex;">
+            <div style="display: inline-grid;">
+              <label for="customRange3">Decimals : <span id="precision">3</span> </label>
+              <input type="range" oninput="set_dec(this)" class="custom-range" min="0" max="5" step="1"
+                id="customRange3">
+            </div>
+          </div>
         </div>
       </div>
 
-      <div id="tbl_placeholder"></div>
-      <div id="graph" style="text-align: center;"></div>
+      <div id="placeholder"></div>
     </div>
   </div>
 
   <script>
     var stop = false;
+    var started = false;
+    var id = 0
 
     function createTable(tableData) {
       var table = document.createElement('table');
@@ -82,7 +122,7 @@ x + 2y = 6</textarea>
 
       table.appendChild(tableHead)
       table.appendChild(tableBody);
-      let tbl_placeholder = document.getElementById("tbl_placeholder");
+      let tbl_placeholder = document.getElementById("tbl_placeholder" + id);
       tbl_placeholder.innerHTML = ""
       tbl_placeholder.appendChild(table);
     }
@@ -93,22 +133,33 @@ x + 2y = 6</textarea>
     }
 
     let update_graphics = () => {
+      let plcholder = document.getElementById("placeholder")
+      let tbl = document.createElement("div")
+      let graph = document.createElement("div")
+      id++;
+      plcholder.prepend(graph)
+      plcholder.prepend(tbl)
+      tbl.id = "tbl_placeholder" + id
+      graph.id = "graph" + id
       let x = myMathLib.get()
       console.log(x);
       let [tree, mem] = x
       console.log(tree, mem)
-      var graphviz = d3.select("#graph").graphviz();
+      var graphviz = d3.select("#graph" + id).graphviz();
       graphviz.renderDot(tree);
       memory_to_table(mem)
     }
 
     let send = () => {
       try {
+        let plcholder = document.getElementById("placeholder")
+        plcholder.innerText = ""
         let inp = document.getElementById("programInp").value;
         myMathLib.send(inp);
         update_graphics();
         document.getElementById("nextB").disabled = false;
         document.getElementById("runB").disabled = false;
+        started = true
       } catch (error) {
         alert("Invalid input\n" + error);
         document.getElementById("nextB").disabled = true;
@@ -128,6 +179,12 @@ x + 2y = 6</textarea>
         stop = myMathLib.next();
       }
       update_graphics()
+    }
+
+    let set_dec = (e) => {
+      document.getElementById('precision').innerHTML = e.value
+      myMathLib.setdec(parseInt(e.value))
+      if (started) update_graphics()
     }
   </script>
 

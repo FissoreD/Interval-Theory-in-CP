@@ -5,16 +5,24 @@ module Set = Set.Make (Int)
 let x : (Memory.t * Tree.tree array * Set.t * int) ref =
   ref (Hashtbl.create 0, [||], Set.empty, 0)
 
-let to_str_mem ~dec () =
+type op = UP | DOWN
+
+let op = ref UP
+let next_op () = op := match !op with UP -> DOWN | DOWN -> UP
+let dec = ref 3
+
+let precision = ref 0.1
+
+let to_str_mem () =
   let mem, _, _, _ = !x in
-  Memory.to_string ~dec mem |> Js.string
+  Memory.to_string ~dec:!dec mem |> Js.string
 
 let to_dot () =
   let mem, t, ignore, currentpos = !x in
   let res =
     Array.mapi
       (fun pos e ->
-        let str = Tree.to_dot ~dec:3 mem e in
+        let str = Tree.to_dot ~dec:!dec mem e in
         if Set.mem pos ignore then
           Printf.sprintf
             "subgraph cluster_%d{style=filled;color=lightpink;\n%s}\n" pos str
@@ -26,11 +34,6 @@ let to_dot () =
     |> Array.fold_left ( ^ ) ""
   in
   "digraph{\n" ^ res ^ "\n}\n" |> Js.string
-
-type op = UP | DOWN
-
-let op = ref UP
-let next_op () = op := match !op with UP -> DOWN | DOWN -> UP
 
 let rec find_next s pos max =
   if Set.cardinal s = max then -1
@@ -45,7 +48,10 @@ let _ =
          let mem, t = Parsing_commands.parse_string (Js.to_string s) in
          x := (mem, Array.of_list t, Set.empty, 0)
 
-       method get = [| to_dot (); to_str_mem ~dec:3 () |] |> Js.array
+       method get = [| to_dot (); to_str_mem () |] |> Js.array
+       method setdec n = dec := n
+       method setprecision p = precision := p
+       method getprecision = !precision
 
        method next =
          let mem, l, ignore, pos = !x in
@@ -58,7 +64,7 @@ let _ =
                let t = Tree.eval_top_bottom mem l.(pos) in
                l.(pos) <- t;
                let ignore =
-                 if Constraints_eval.stop_condition ~precision:0.1 mem then
+                 if Constraints_eval.stop_condition ~precision:!precision mem then
                    Set.add pos ignore
                  else ignore
                in
