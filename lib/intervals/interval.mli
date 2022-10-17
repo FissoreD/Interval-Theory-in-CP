@@ -39,4 +39,5 @@ val ( <<= ) : t -> t -> t
 val ( == ) : t -> t -> t
 (** The equal of two intervals *)
 
+val to_string : ?dec:int -> t -> string
 val print : ?dec:int -> t -> unit

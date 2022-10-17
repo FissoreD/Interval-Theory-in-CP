@@ -62,7 +62,7 @@ let eval_top_bottom mem tree =
       | Empty | UnaryNode _ | BinNode _ -> Empty)
   | Empty | UnaryNode _ | Leaf _ -> Empty
 
-let rec print ?(simple_version = true) ?(dec = 0) ?(infix = false)
+let rec print ?(simple_version = false) ?(dec = 0) ?(infix = false)
     (mem : Memory.t) = function
   | Leaf (Var x) ->
       print_string x;
@@ -88,3 +88,44 @@ let rec print ?(simple_version = true) ?(dec = 0) ?(infix = false)
       if not simple_version then Interval.print iu;
       print ~simple_version ~dec ~infix mem c
   | Empty -> print_string "Empty"
+
+let cnt = ref 0
+
+let to_dot ?(intervals = true) ?(dec = 3) (mem : Memory.t) t =
+  let node_rename = Printf.sprintf "\"%d\" [label=\"%s\"]\n" in
+  let build_link = Printf.sprintf "\"%d\" -> \"%d\"\n" in
+  let add_interval i = if intervals then Interval.to_string ~dec i else "" in
+  let rec aux name = function
+    | Leaf (Var x) ->
+        ( name,
+          node_rename name @@ x ^ " "
+          ^ add_interval (Hashtbl.find mem x).current )
+    | Leaf (Const c) -> (name, node_rename name @@ Printf.sprintf "%.*f" dec c)
+    | Leaf (Interval i) -> (name, node_rename name @@ add_interval i)
+    | UnaryNode { opu; iu; c } ->
+        let name1, child = aux (name + 1) c in
+        let rename =
+          node_rename name
+          @@ Printf.sprintf "%s, %s"
+               (Operator.Unary.op_to_str opu)
+               (add_interval iu)
+        in
+        (name1, build_link name (name + 1) ^ child ^ rename)
+    | BinNode { op; i; l; r } ->
+        let n1, l1 = aux (name + 1) l in
+        let n2, r1 = aux (n1 + 1) r in
+        let rename =
+          node_rename name
+          @@ Printf.sprintf "%s, %s"
+               (Operator.Binary.op_to_str op)
+               (add_interval i)
+        in
+        ( n2,
+          build_link name (name + 1)
+          ^ build_link name (n1 + 1)
+          ^ l1 ^ r1 ^ rename )
+    | Empty -> (name, "Empty")
+  in
+  let n, res = aux !cnt t in
+  cnt := n + 1;
+  res

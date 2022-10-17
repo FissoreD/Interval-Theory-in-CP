@@ -17,3 +17,10 @@ val constraint_inter :
     Otherwise, if there doesn't exist any variable x' that is reduced in this way, then 
     we can ignore this constraint since it will not be usefull anymore.
 *)
+
+val stop_condition : precision:float -> Memory.t -> bool
+(** 
+  As specified in the description of constraint_inter in the mli file, 
+  we can remove a constraint if it does not modify the interval of any variable
+  more then ~precision  
+*)

@@ -14,10 +14,10 @@ let to_tbl (m : mem_parser) : t =
   List.iter (fun (k, v) -> Hashtbl.replace res k { old = v; current = v }) m;
   res
 
-let print ?(dec = 3) (m : t) =
-  Hashtbl.iter
-    (fun k { current; _ } ->
-      print_string k;
-      Interval.print ~dec current;
-      print_string " ")
-    m
+let to_string ?(dec = 3) (m : t) =
+  Hashtbl.fold
+    (fun k { current; _ } acc ->
+      acc ^ k ^ ":" ^ Interval.to_string ~dec current ^ "; ")
+    m ""
+
+let print ?(dec = 3) (m : t) = print_string @@ to_string ~dec m

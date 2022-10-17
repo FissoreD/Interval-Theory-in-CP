@@ -41,6 +41,8 @@ let ( <<= ) i1 (i2 : t) = i1 && Option.map (fun (a, _) -> (min_float, a)) i2
 let ( == ) (i1 : t) (i2 : t) = i1 && Option.map (fun (a, _) -> (a, a)) i2
 let size : t -> float = function None -> 0. | Some (a, b) -> b -. a
 
-let print ?(dec = 0) : t -> unit = function
-  | None -> print_string "[]"
-  | Some (a, b) -> Printf.printf "[%.*f, %.*f]" dec a dec b
+let to_string ?(dec = 0) = function
+  | None -> "[]"
+  | Some (a, b) -> Printf.sprintf "[%.*f, %.*f]" dec a dec b
+
+let print ?(dec = 0) t = print_string (to_string ~dec t)

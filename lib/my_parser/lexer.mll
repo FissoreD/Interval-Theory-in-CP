@@ -5,8 +5,8 @@
 let str = ['a' - 'z' 'A' - 'Z']+
 let int = ['0' - '9']+
 let float = '-'? (int '.' ['0' - '9']*) | (['0' - '9']* '.' int)
-let sep = "%%"
-let ign = [' ' '\t' '\r' ':' ',' '[' ']' '\n']+
+let sep = '%'+
+let ign = [' ' '\t' '\r' ':' ',' '[' ']' '\n' ';']+
 let comment = "//" [^ '\n']*
 
 rule f = parse

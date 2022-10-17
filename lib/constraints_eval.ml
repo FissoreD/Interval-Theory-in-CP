@@ -7,11 +7,6 @@ let tree_analyse t mem =
   let bt = Tree.eval_bottom_top mem t in
   Tree.eval_top_bottom mem bt
 
-(** 
-  As specified in the description of constraint_inter in the mli file, 
-  we can remove a constraint if it does not modify the interval of any variable
-  more then ~precision  
-*)
 let stop_condition ~precision (mem : Memory.t) =
   let keys = Hashtbl.to_seq_keys mem in
   let rec aux = function
