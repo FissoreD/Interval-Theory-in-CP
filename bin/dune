@@ -1,4 +1,13 @@
 (executable
  (public_name IntervalTheoryInCP)
  (name main)
- (libraries IntervalTheoryInCP))
+ (libraries IntervalTheoryInCP)
+ (modules main))
+
+(executable
+ (name myjs)
+ (modes js)
+ (libraries js_of_ocaml IntervalTheoryInCP)
+ (preprocess
+  (pps js_of_ocaml-ppx))
+ (modules myjs))

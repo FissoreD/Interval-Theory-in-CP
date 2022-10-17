@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IntervalTheoryInCP</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+
+  <script src="_build/default/bin/myjs.bc.js"></script>
+  <script src="bin/d3.v5.min.js"></script>
+  <script src="bin/index.min.js"></script>
+  <script src="bin/d3-graphviz.js"></script>
+  <style>
+    svg {
+      width: 100%;
+    }
+
+    textarea {
+      padding-left: 2em !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="justify-content-center row">
+      <h1 class="text-center">Interval theory in CP</h1>
+
+      <div>
+        <div class="justify-content-center row text-center">
+          <label for="programInp">Your input</label>
+          <textarea id="programInp" name="programInp" rows="8" cols="50">x : [0, 8]
+y : [-1, 3]
+%%
+x + 4y = 8
+x + 2y = 6</textarea>
+        </div>
+        <div class="text-center">
+          <button onclick="send()">Send</button>
+          <button id="nextB" onclick="next()" disabled>Next</button>
+          <button id="runB" onclick="run()" disabled>Run</button>
+        </div>
+      </div>
+
+      <div id="tbl_placeholder"></div>
+      <div id="graph" style="text-align: center;"></div>
+    </div>
+  </div>
+
+  <script>
+    var stop = false;
+
+    function createTable(tableData) {
+      var table = document.createElement('table');
+      table.className = "table"
+      var tableHead = document.createElement('thead')
+      var tr1 = document.createElement('tr')
+      var th1 = document.createElement('th')
+      var th2 = document.createElement('th')
+      tr1.appendChild(th1)
+      tr1.appendChild(th2)
+      th1.innerHTML = "Variables"
+      th2.innerHTML = "Intervals"
+      tableHead.appendChild(tr1)
+
+      var tableBody = document.createElement('tbody');
+
+      tableData.forEach(function (rowData) {
+        var row = document.createElement('tr');
+
+        rowData.forEach(function (cellData) {
+          var cell = document.createElement('td');
+          cell.appendChild(document.createTextNode(cellData));
+          row.appendChild(cell);
+        });
+        tableBody.appendChild(row);
+      });
+
+      table.appendChild(tableHead)
+      table.appendChild(tableBody);
+      let tbl_placeholder = document.getElementById("tbl_placeholder");
+      tbl_placeholder.innerHTML = ""
+      tbl_placeholder.appendChild(table);
+    }
+
+    let memory_to_table = (mem) => {
+      mem = mem.split("; ").filter(e => e !== "").map(e => e.split(":"))
+      return createTable(mem)
+    }
+
+    let update_graphics = () => {
+      let x = myMathLib.get()
+      console.log(x);
+      let [tree, mem] = x
+      console.log(tree, mem)
+      var graphviz = d3.select("#graph").graphviz();
+      graphviz.renderDot(tree);
+      memory_to_table(mem)
+    }
+
+    let send = () => {
+      try {
+        let inp = document.getElementById("programInp").value;
+        myMathLib.send(inp);
+        update_graphics();
+        document.getElementById("nextB").disabled = false;
+        document.getElementById("runB").disabled = false;
+      } catch (error) {
+        alert("Invalid input\n" + error);
+        document.getElementById("nextB").disabled = true;
+        document.getElementById("runB").disabled = true;
+      }
+    }
+
+    let next = () => {
+      if (!stop) {
+        stop = myMathLib.next();
+        update_graphics()
+      }
+    }
+
+    let run = () => {
+      while (!stop) {
+        stop = myMathLib.next();
+      }
+      update_graphics()
+    }
+  </script>
+
+</body>
+
+</html>
