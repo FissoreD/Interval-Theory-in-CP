@@ -32,7 +32,7 @@ jobs:
 
       - run: opam exec -- dune build
 
-      - mkdir: target
+      - run: mkdir target
 
       - run: cp _build js index.html target
 
