@@ -9,17 +9,22 @@ let () =
   let dec = ref 3 in
   let file_path = ref "./ressources/input.txt" in
   let speclist =
-    [
-      ("-p", Set_float precision, "Set the precision of the constraints.");
-      ( "-v",
-        Set verbose,
-        "Print each step of the algorithm execution in verbose mode." );
-      ("-t", Set print_tree, "Print the tree at each step in prefix mode.");
-      ("-d", Set_int dec, "Set the decimal precision in print mode");
-      ( "-f",
-        Set_string file_path,
-        "Set the file path to read the input to parse." );
-    ]
+    align
+      [
+        ( "-p",
+          Set_float precision,
+          "[F] Set the precision of the constraints. ([F] is a float)" );
+        ( "-v",
+          Set verbose,
+          " Print each step of the algorithm execution in verbose mode." );
+        ("-t", Set print_tree, " Print the tree at each step in prefix mode.");
+        ( "-d",
+          Set_int dec,
+          "[N] Set the decimal precision in print mode. ([N] is an integer)" );
+        ( "-f",
+          Set_string file_path,
+          " Set the file path to read the input to parse." );
+      ]
   in
   let usage_msg =
     "IntervalTheoryInCP is a tool allowing to test contraints over given \

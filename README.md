@@ -85,22 +85,27 @@ If the problem has no solution, then the algorithm stop and returns Empty.
 
 ## Launch the main 
 
-To launch the project you need the *Ocaml build system* [dune](https://github.com/ocaml/dune).
+To launch the project you need the *Ocaml build system* [dune](https://github.com/ocaml/dune). To install the needed dependences run `./dependencies.sh`. 
 
 Through *dune* you can launch:
 
 - an executable which runs some unit tests. Command: `dune exec test`
 - the main file, called `IntervalTheoryInCP`. Command: `dune exec -- IntervalTheoryInCP`.  
   It accepts some optional parameters:
-  - **-p** Set the precision of the constraints.
-  - **-v** Print each step of the algorithm execution in verbose mode.
-  - **-t** Print the tree at each step in infix mode.
-  - **-d** Set the decimal precision in print mode
-  - **-f** Set the file path to read the input to parse.
-  - **-help**  Display this list of options
-  - **--help**  Display this list of options
+  ```
+  -p [F]  Set the precision of the constraints. ([F] is a float)
+  -v      Print each step of the algorithm execution in verbose mode.
+  -t      Print the tree at each step in prefix mode.
+  -d [N]  Set the decimal precision in print mode. ([N] is an integer)
+  -f      Set the file path to read the input to parse.
+  -help   Display this list of options
+  --help  Display this list of options
+  ```
 
 By default, the main parses the *input.txt* file in *./ressources*, the verbose mode is not enabled and the precision of the constraints is set to $0.1$.
+
+### Example of commands
+1. `dune exec -- IntervalTheoryInCP -p 0.1 -v -f ressources/input.txt`: precision is 0.1, verbose mode, input file is `ressources/input.txt`
 
 ### Execution example
 Let *input.txt* contains:
