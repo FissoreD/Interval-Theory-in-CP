@@ -16,6 +16,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - run: chmod u+x dependencies.sh
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -26,6 +28,19 @@ jobs:
 
       - run: opam install . --deps-only --with-test
 
+      - run: ./dependencies.sh
+
       - run: opam exec -- dune build
 
-      - run: opam exec -- dune runtest
+      - mkdir: target
+
+      - run: cp _build js index.html target
+
+      - name: Push
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: gh-pages1 # The branch name where you want to push the assets
+          FOLDER: target # The directory where your assets are generated
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
+          MESSAGE: "Build: ({sha}) {msg}" # The commit message
