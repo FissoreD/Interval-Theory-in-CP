@@ -1,0 +1,13 @@
+lib: [
+  "_build/install/default/lib/IntervalTheoryInCP/META"
+  "_build/install/default/lib/IntervalTheoryInCP/dune-package"
+  "_build/install/default/lib/IntervalTheoryInCP/opam"
+]
+bin: [
+  "_build/install/default/bin/IntervalTheoryInCP"
+  "_build/install/default/bin/test"
+]
+doc: [
+  "_build/install/default/doc/IntervalTheoryInCP/LICENSE"
+  "_build/install/default/doc/IntervalTheoryInCP/README.md"
+]

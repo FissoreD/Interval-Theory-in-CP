@@ -1,0 +1,7 @@
+(lang dune 3.7)
+(name IntervalTheoryInCP)
+(sections (lib .) (bin ../../bin) (doc ../../doc/IntervalTheoryInCP))
+(files
+ (lib (META dune-package opam))
+ (bin (IntervalTheoryInCP test))
+ (doc (LICENSE README.md)))

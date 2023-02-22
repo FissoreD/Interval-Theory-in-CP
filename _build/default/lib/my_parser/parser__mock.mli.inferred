@@ -1,0 +1,21 @@
+type token =
+    VAR of string
+  | SUB
+  | SEP
+  | RPAR
+  | MUL
+  | LPAR
+  | LEQ
+  | GEQ
+  | FLOAT of float
+  | EQL
+  | EOF
+  | DIV
+  | ADD
+val menhir_begin_marker : int
+val xv_interval_list : Memory.mem_parser
+val xv_f : Memory.t * Tree.tree list
+val xv_expr : Tree.tree
+val xv_constr_list : Tree.tree list
+val xv_constr : Tree.tree
+val menhir_end_marker : int
