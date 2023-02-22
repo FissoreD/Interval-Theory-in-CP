@@ -160,7 +160,8 @@ then the output will be
   x[3.938, 4.062] y[0.969, 1.031] 
 ```
 
-
+# Web page with my implementation
+Go [here](https://fissored.github.io/Interval-Theory-in-CP/) to see an interactive representation of my implementation
 
 ## Supervisor
 
