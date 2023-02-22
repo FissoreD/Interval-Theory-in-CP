@@ -16,11 +16,11 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - run: chmod u+x dependencies.sh
-
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - run: chmod u+x dependencies.sh
+      
       - name: Use OCaml4.14.x
         uses: ocaml/setup-ocaml@v2
         with:
