@@ -10,7 +10,6 @@ type op = UP | DOWN
 let op = ref UP
 let next_op () = op := match !op with UP -> DOWN | DOWN -> UP
 let dec = ref 3
-
 let precision = ref 0.1
 
 let to_str_mem () =
@@ -64,8 +63,8 @@ let _ =
                let t = Tree.eval_top_bottom mem l.(pos) in
                l.(pos) <- t;
                let ignore =
-                 if Constraints_eval.stop_condition ~precision:!precision mem then
-                   Set.add pos ignore
+                 if Constraints_eval.stop_condition ~precision:!precision mem
+                 then Set.add pos ignore
                  else ignore
                in
                let next_pos = find_next ignore pos (Array.length l) in

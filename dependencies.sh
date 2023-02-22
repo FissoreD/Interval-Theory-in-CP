@@ -1,1 +1,1 @@
-opam install dune menhir
+opam install dune menhir js_of_ocaml-ppx

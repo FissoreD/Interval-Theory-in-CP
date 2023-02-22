@@ -27,10 +27,6 @@ _opam/
 
 # ocamlbuild working directory
 
-_build/*
+_build
 
-!_build/default/
-_build/default/*
-!_build/default/bin
-_build/default/bin/*
-!_build/default/bin/myjs.bc.js
+Dockerfile
